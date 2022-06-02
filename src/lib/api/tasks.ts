@@ -1,16 +1,16 @@
-import { TaskReq } from "interfaces"
+import { TaskReq, TaskRes } from "interfaces"
 import client from "lib/api/client"
 
 export const fetchTasks = () => {
-  return client.get("tasks")
+  return client.get<TaskRes[]>("tasks")
 }
 
 export const createTask = (data: TaskReq) => {
-  return client.post("tasks", data)
+  return client.post<TaskRes>("tasks", data)
 }
 
 export const updateTask = (id: number | undefined, data: TaskReq) => {
-  return client.patch(`user/${id}`, data)
+  return client.patch<TaskRes>(`user/${id}`, data)
 }
 
 export const deleteTask = (id: number | undefined) => {
