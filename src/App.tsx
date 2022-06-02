@@ -13,7 +13,7 @@ const App: React.FC = () => {
       if (res.status === 200) {
         setTasks(res.data)
       } else {
-        console.log(res.data.message)
+        console.log(res.data)
       }
     } catch (err) {
       console.log(err)
