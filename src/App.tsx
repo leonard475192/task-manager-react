@@ -1,9 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from "react"
 
-function App() {
-  return (
-    <h1>OK</h1>
+import { fetchTasks } from "lib/api/tasks"
+import { TaskRes } from "interfaces"
+
+const App: React.FC = () => {
+  const [tasks, setTasks] = useState<TaskRes[]>([])
+
+  const handleTasks = async () => {
+    try {
+      const res = await fetchTasks()
+
+      if (res.status === 200) {
+        setTasks(res.data)
+      } else {
+        console.log(res.data.message)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  useEffect(() => {
+    handleTasks()
+  }, [])
+
+  const listItems = tasks.map((task) =>
+    <li key={task.id}>{task.title}</li>
   );
+
+  return (
+    <ul>{listItems}</ul>
+  )
 }
 
-export default App;
+export default App
