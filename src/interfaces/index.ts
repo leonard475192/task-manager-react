@@ -1,4 +1,5 @@
-export type TaskStatus = "TODO" | "DOING" | "DONE"
+export const taskStatuses = ["TODO", "DOING", "DONE"] as const
+export type TaskStatus = typeof taskStatuses[number]
 
 export type TaskReq = {
   title: string

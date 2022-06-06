@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react"
 import { fetchTasks } from "lib/api/tasks"
 import { TaskRes } from "interfaces"
 
+import { TaskBoard } from "components/TaskBoard"
+
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<TaskRes[]>([])
 
@@ -24,12 +26,11 @@ const App: React.FC = () => {
     handleTasks()
   }, [])
 
-  const listItems = tasks.map((task) =>
-    <li key={task.id}>{task.title}</li>
-  );
-
   return (
-    <ul>{listItems}</ul>
+    <TaskBoard 
+      tasks={tasks}
+      setTasks={setTasks}
+    />
   )
 }
 

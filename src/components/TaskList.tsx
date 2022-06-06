@@ -1,15 +1,15 @@
 import React from "react"
 
-import { TaskRes } from "interfaces"
+import { TaskRes, TaskStatus } from "interfaces"
 import { TaskItem } from "./TaskItem"
 
-type ListProps = {
-  title: string
+type Props = {
+  title: TaskStatus
   tasks: TaskRes[]
   setTasks: Function
 }
 
-export const TaskList: React.FC<ListProps> = ({ title, tasks, setTasks }) => {
+export const TaskList: React.FC<Props> = ({ title, tasks, setTasks }) => {
   return (
     <>
       <h2>{ title }</h2>
