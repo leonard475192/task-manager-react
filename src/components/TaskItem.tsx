@@ -20,7 +20,7 @@ export const TaskItem: React.FC<Props> = ({ task, setShowModal, setSelectTask })
   return (
     <li>
       <Card className="my-3 px-3 flex">
-        <span className="flex-1">{task.title}</span>
+        <span className="flex-1 leading-8">{task.title}</span>
         <span className="flex-none">
           <Button variant="text" onClick={openModal}>OPEN</Button>
         </span>
