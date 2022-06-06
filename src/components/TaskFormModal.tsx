@@ -1,16 +1,21 @@
-import { FormControl, Input, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material"
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React, { useState } from "react"
 
-import { TaskStatus, TaskReq, TaskRes } from "../interfaces/index"
-import { createTask } from "../lib/api/tasks"
+import { TaskStatus, TaskReq, TaskRes, taskStatuses } from "../interfaces/index"
+import { createTask, deleteTask } from "../lib/api/tasks"
 
 
 interface TaskFormProps {
+  isShow: boolean
+  setShow: Function
   tasks: TaskRes[]
   setTasks: Function
+  // formTask?: TaskRes
 }
 
-export const TaskFormModal: React.FC<TaskFormProps> = ({ tasks, setTasks }) => {
+export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks, setTasks }) => {
   const INIT_VALUE: TaskReq = {
     title: "",
     status: "TODO",
@@ -21,9 +26,7 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ tasks, setTasks }) => {
 
   const [formValue, setForm] = useState<TaskReq>(INIT_VALUE)
 
-  const handleCreateTask = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
+  const handleCreateTask = async () => {
     const data: TaskReq = {
       title: formValue.title,
       status: formValue.status,
@@ -35,8 +38,9 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ tasks, setTasks }) => {
     try {
       const res = await createTask(data)
 
-      if (res.status === 200) {
+      if (res.status === 201) {
         setTasks([...tasks, res.data])
+        handleClose()
       } else {
         console.log(res.data)
       }
@@ -47,39 +51,99 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ tasks, setTasks }) => {
     setForm(INIT_VALUE)
   }
 
+  const handleDeleteTask = async (id: number) => {
+    try {
+      const res = await deleteTask(id)
+      console.log(res)
+
+      if (res?.status === 204) {
+        setTasks((prev: TaskRes[]) => prev.filter((task: TaskRes) => task.id !== id))
+        handleClose()
+      } else {
+        console.log(res.data.message)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleClose = () => {
+    setShow(false)
+  }
+
   return (
-    <form onSubmit={handleCreateTask}>
-      <Input
-        type="text"
-        value={formValue.title}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setForm({...formValue, title: e.target.value})
-        }}
-      />
-      <FormControl fullWidth>
-        <InputLabel id="status-select-label">ステータス</InputLabel>
-        <Select<TaskStatus>
-          labelId="status-select-label"
-          id="status-select"
-          value={formValue.status}
-          label="ステータス"
-          onChange={(e: SelectChangeEvent<TaskStatus>) => {
-            setForm({...formValue, status: e.target.value as TaskStatus}) // TODO as 使いたくないなぁ
-          }}
-        >
-          <MenuItem value={"TODO"}>未完了</MenuItem>
-          <MenuItem value={"DOING"}>実行中</MenuItem>
-          <MenuItem value={"DONE"}>完了</MenuItem>
-        </Select>
-      </FormControl>
-      <Input
-        type="text"
-        value={formValue.content}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setForm({...formValue, content: e.target.value})
-        }}
-      />
-      <input type="submit" value="Add" disabled={!formValue.title} />
-    </form>
+    <Dialog open={isShow} onClose={handleClose}>
+      <div className="p-12">
+        <DialogTitle>
+          <TextField
+            label="タイトル"
+            variant="standard"
+            fullWidth
+            value={formValue.title}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setForm({...formValue, title: e.target.value})
+            }}
+          />
+        </DialogTitle>
+        <DialogContent className="py-12">
+          <TextField
+            select
+            label="ステータス"
+            fullWidth
+            variant="standard"
+            value={formValue.status}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setForm({...formValue, status: e.target.value as TaskStatus}) // TODO as 使いたくないなぁ
+            }}
+            SelectProps={{
+              native: true,
+            }}
+          >
+            {Object.entries(taskStatuses).map(([key, value]) => (
+              <option key={key} value={key}>
+                {value}
+              </option>
+            ))}
+          </TextField>
+          <TextField
+            type="number"
+            label="工数(時間)"
+            fullWidth
+            variant="standard"
+            sx={{ my: 2 }}
+            value={formValue.manHour}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setForm({...formValue, manHour: Number(e.target.value) })
+            }}
+          />
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              label="締め切り"
+              value={formValue.deadlineAt}
+              onChange={(inputDate) => {
+                setForm({...formValue, deadlineAt: inputDate ?? new Date()})
+              }}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </LocalizationProvider>
+          
+          <TextField
+            label="詳細"
+            multiline
+            fullWidth
+            variant="standard"
+            sx={{ my: 2 }}
+            minRows={10}
+            value={formValue.content}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setForm({...formValue, content: e.target.value})
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCreateTask}>新規作成</Button>
+        </DialogActions>
+      </div>
+    </Dialog>
   )
 }

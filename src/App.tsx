@@ -5,9 +5,16 @@ import { Container } from "@mui/system"
 import { fetchTasks } from "lib/api/tasks"
 import { TaskRes } from "interfaces"
 import { TaskBoard } from "components/TaskBoard"
+import { TaskFormModal } from "components/TaskFormModal"
+import { Button } from "@mui/material"
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<TaskRes[]>([])
+  const [showModal, setShowModal] = useState<boolean>(false)
+
+  const handleClickShowModal = () => {
+    setShowModal(true);
+  };
 
   const handleTasks = async () => {
     try {
@@ -29,11 +36,21 @@ const App: React.FC = () => {
 
   return (
     <Container fixed maxWidth="lg">
-      <h1 className="text-4xl my-12">Task Board</h1>
+      <div className="flex text-4xl my-12">
+        <h1 className="flex-1">Task Board</h1>
+        <Button onClick={handleClickShowModal} variant="contained" className="flex-none">新規作成</Button>
+      </div>
+      
       <TaskBoard 
-      tasks={tasks}
-      setTasks={setTasks}
-    />
+        tasks={tasks}
+        setShowModal={setShowModal}
+      />
+      <TaskFormModal
+        isShow={showModal}
+        setShow={setShowModal}
+        tasks={tasks}
+        setTasks={setTasks}
+      />
     </Container>
   )
 }

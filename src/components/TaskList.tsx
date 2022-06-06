@@ -8,10 +8,10 @@ import { TaskItem } from "./TaskItem"
 type Props = {
   title: TaskStatus
   tasks: TaskRes[]
-  setTasks: Function
+  setShowModal: Function
 }
 
-export const TaskList: React.FC<Props> = ({ title, tasks, setTasks }) => {
+export const TaskList: React.FC<Props> = ({ title, tasks, setShowModal }) => {
   return (
     <Grid item xs={4}>
       <Paper elevation={3} className="p-6">
@@ -23,7 +23,7 @@ export const TaskList: React.FC<Props> = ({ title, tasks, setTasks }) => {
                 <TaskItem
                   key={index}
                   task={task}
-                  setTasks={setTasks}
+                  setShowModal={setShowModal}
                 />
               )
             })

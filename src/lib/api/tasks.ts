@@ -10,9 +10,9 @@ export const createTask = (data: TaskReq) => {
 }
 
 export const updateTask = (id: number | undefined, data: TaskReq) => {
-  return client.patch<TaskRes>(`user/${id}`, data)
+  return client.patch<TaskRes>(`tasks/${id}`, data)
 }
 
 export const deleteTask = (id: number | undefined) => {
-  return client.delete(`user/${id}`)
+  return client.delete(`tasks/${id}`)
 }

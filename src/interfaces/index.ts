@@ -1,5 +1,9 @@
-export const taskStatuses = ["TODO", "DOING", "DONE"] as const
-export type TaskStatus = typeof taskStatuses[number]
+export const taskStatuses = {
+  TODO: "未完了",
+  DOING: "実行中",
+  DONE: "完了",
+} as const
+export type TaskStatus = keyof typeof taskStatuses
 
 export type TaskReq = {
   title: string

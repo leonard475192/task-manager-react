@@ -8,17 +8,17 @@ import { deleteTask } from "lib/api/tasks"
 
 type Props = {
   task: TaskRes
-  setTasks: Function
+  setShowModal: Function
 }
 
-export const TaskItem: React.FC<Props> = ({ task, setTasks }) => {
+export const TaskItem: React.FC<Props> = ({ task, setShowModal }) => {
   const handleDeleteTask = async (id: number) => {
     try {
       const res = await deleteTask(id)
       console.log(res)
 
-      if (res?.status === 200) {
-        setTasks((prev: TaskRes[]) => prev.filter((task: TaskRes) => task.id !== id))
+      if (res?.status === 204) {
+        // setTasks((prev: TaskRes[]) => prev.filter((task: TaskRes) => task.id !== id))
       } else {
         console.log(res.data.message)
       }
@@ -32,7 +32,7 @@ export const TaskItem: React.FC<Props> = ({ task, setTasks }) => {
       <Card className="my-3 px-3">
         <span>{task.title}</span>
         <span>
-          <Button variant="text" onClick={() => handleDeleteTask(task.id || 0)}>Delete</Button>
+          <Button variant="text" onClick={() => setShowModal(task.id || 0)}>Delete</Button>
         </span>
       </Card>
     </li>
