@@ -1,5 +1,7 @@
 import React from "react"
 
+import { Grid } from "@mui/material"
+
 import { taskStatuses, TaskRes, TaskStatus } from "interfaces"
 import { TaskList } from "./TaskList"
 
@@ -10,7 +12,7 @@ type Props = {
 
 export const TaskBoard: React.FC<Props> = ({ tasks, setTasks }) => {
   return (
-    <>
+    <Grid container spacing={2}>
       {
         taskStatuses.map((taskStatus: TaskStatus, index: number) => {
           return (
@@ -23,6 +25,6 @@ export const TaskBoard: React.FC<Props> = ({ tasks, setTasks }) => {
           )
         })
       }
-    </>
+    </Grid>
   )
 }

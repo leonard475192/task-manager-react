@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react"
 
+import { Container } from "@mui/system"
+
 import { fetchTasks } from "lib/api/tasks"
 import { TaskRes } from "interfaces"
-
 import { TaskBoard } from "components/TaskBoard"
 
 const App: React.FC = () => {
@@ -27,10 +28,13 @@ const App: React.FC = () => {
   }, [])
 
   return (
-    <TaskBoard 
+    <Container fixed maxWidth="lg">
+      <h1>Task Board</h1>
+      <TaskBoard 
       tasks={tasks}
       setTasks={setTasks}
     />
+    </Container>
   )
 }
 
