@@ -29,7 +29,7 @@ const App: React.FC = () => {
 
   return (
     <Container fixed maxWidth="lg">
-      <h1>Task Board</h1>
+      <h1 className="text-4xl my-12">Task Board</h1>
       <TaskBoard 
       tasks={tasks}
       setTasks={setTasks}
