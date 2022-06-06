@@ -1,10 +1,11 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material"
+import React, { useEffect, useState } from "react"
+
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material"
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import React, { useState } from "react"
 
 import { TaskStatus, TaskReq, TaskRes, taskStatuses } from "../interfaces/index"
-import { createTask, deleteTask } from "../lib/api/tasks"
+import { createTask, deleteTask, updateTask } from "../lib/api/tasks"
 
 
 interface TaskFormProps {
@@ -12,10 +13,11 @@ interface TaskFormProps {
   setShow: Function
   tasks: TaskRes[]
   setTasks: Function
-  // formTask?: TaskRes
+  selectTask?: TaskRes
+  setSelectTask: Function
 }
 
-export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks, setTasks }) => {
+export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks, setTasks, selectTask, setSelectTask }) => {
   const INIT_VALUE: TaskReq = {
     title: "",
     status: "TODO",
@@ -24,14 +26,20 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     deadlineAt: new Date(),
   }
 
-  const [formValue, setForm] = useState<TaskReq>(INIT_VALUE)
+  const [formValue, setForm] = useState<TaskReq>({
+    title:      selectTask?.title      ?? INIT_VALUE.title,
+    status:     selectTask?.status     ?? INIT_VALUE.status,
+    content:    selectTask?.content    ?? INIT_VALUE.content,
+    manHour:    selectTask?.manHour    ?? INIT_VALUE.manHour,
+    deadlineAt: selectTask?.deadlineAt ?? INIT_VALUE.deadlineAt,
+  })
 
   const handleCreateTask = async () => {
     const data: TaskReq = {
-      title: formValue.title,
-      status: formValue.status,
-      content: formValue.content,
-      manHour: formValue.manHour,
+      title:      formValue.title,
+      status:     formValue.status,
+      content:    formValue.content,
+      manHour:    formValue.manHour,
       deadlineAt: formValue.deadlineAt,
     }
 
@@ -51,10 +59,34 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     setForm(INIT_VALUE)
   }
 
+  const handleUpdateTask = async (id: number) => {
+    const data: TaskReq = {
+      title:      formValue.title,
+      status:     formValue.status,
+      content:    formValue.content,
+      manHour:    formValue.manHour,
+      deadlineAt: formValue.deadlineAt,
+    }
+
+    try {
+      const res = await updateTask(id, data)
+
+      if (res.status === 200) {
+        setTasks([...(tasks.filter((task: TaskRes) => task.id !== id)), res.data])
+        handleClose()
+      } else {
+        console.log(res.data)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+
+    setForm(INIT_VALUE)
+  }
+
   const handleDeleteTask = async (id: number) => {
     try {
       const res = await deleteTask(id)
-      console.log(res)
 
       if (res?.status === 204) {
         setTasks((prev: TaskRes[]) => prev.filter((task: TaskRes) => task.id !== id))
@@ -67,8 +99,34 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     }
   }
 
+  useEffect(() => {
+    if (selectTask) {
+      setForm({
+        title:      selectTask.title,
+        status:     selectTask.status,
+        content:    selectTask.content,
+        manHour:    selectTask.manHour,
+        deadlineAt: selectTask.deadlineAt,
+      })
+    }
+  }, [selectTask]);
+
+  const actionButton = (selectTask: TaskRes | undefined) => {
+    if (selectTask) {
+      return (
+        <>
+          <Button variant="outlined" onClick={() => handleDeleteTask(selectTask.id)}>削除</Button>
+          <Button variant="contained" onClick={() => handleUpdateTask(selectTask.id)}>更新</Button>
+        </>
+      )
+    } else {
+      return <Button variant="contained" onClick={handleCreateTask}>新規作成</Button>
+    }
+  }
+
   const handleClose = () => {
     setShow(false)
+    setSelectTask(undefined)
   }
 
   return (
@@ -141,7 +199,7 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCreateTask}>新規作成</Button>
+          {actionButton(selectTask)}
         </DialogActions>
       </div>
     </Dialog>

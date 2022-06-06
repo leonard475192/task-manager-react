@@ -11,6 +11,7 @@ import { Button } from "@mui/material"
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<TaskRes[]>([])
   const [showModal, setShowModal] = useState<boolean>(false)
+  const [selectTask, setSelectTask] = useState<TaskRes>()
 
   const handleClickShowModal = () => {
     setShowModal(true);
@@ -44,12 +45,15 @@ const App: React.FC = () => {
       <TaskBoard 
         tasks={tasks}
         setShowModal={setShowModal}
+        setSelectTask={setSelectTask}
       />
       <TaskFormModal
         isShow={showModal}
         setShow={setShowModal}
         tasks={tasks}
         setTasks={setTasks}
+        selectTask={selectTask}
+        setSelectTask={setSelectTask}
       />
     </Container>
   )

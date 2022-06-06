@@ -9,9 +9,10 @@ type Props = {
   title: TaskStatus
   tasks: TaskRes[]
   setShowModal: Function
+  setSelectTask: Function
 }
 
-export const TaskList: React.FC<Props> = ({ title, tasks, setShowModal }) => {
+export const TaskList: React.FC<Props> = ({ title, tasks, setShowModal, setSelectTask }) => {
   return (
     <Grid item xs={4}>
       <Paper elevation={3} className="p-6">
@@ -24,6 +25,7 @@ export const TaskList: React.FC<Props> = ({ title, tasks, setShowModal }) => {
                   key={index}
                   task={task}
                   setShowModal={setShowModal}
+                  setSelectTask={setSelectTask}
                 />
               )
             })

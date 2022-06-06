@@ -8,9 +8,10 @@ import { TaskList } from "./TaskList"
 type Props = {
   tasks: TaskRes[]
   setShowModal: Function
+  setSelectTask: Function
 }
 
-export const TaskBoard: React.FC<Props> = ({ tasks, setShowModal }) => {
+export const TaskBoard: React.FC<Props> = ({ tasks, setShowModal, setSelectTask }) => {
   return (
     <Grid container spacing={2}>
       {
@@ -21,6 +22,7 @@ export const TaskBoard: React.FC<Props> = ({ tasks, setShowModal }) => {
               title={taskStatus}
               tasks={tasks.filter(task => task.status === taskStatus)}
               setShowModal={setShowModal}
+              setSelectTask={setSelectTask}
             />
           )
         })
