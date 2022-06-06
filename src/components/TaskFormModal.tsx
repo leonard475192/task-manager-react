@@ -57,18 +57,14 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ tasks, setTasks }) => {
         }}
       />
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Age</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+        <InputLabel id="status-select-label">ステータス</InputLabel>
+        <Select<TaskStatus>
+          labelId="status-select-label"
+          id="status-select"
           value={formValue.status}
           label="ステータス"
-          onChange={(e: SelectChangeEvent) => {
-            if (typeof e.target.value === TaskStatus) {
-              setForm({...formValue, status: e.target.value})
-            } else {
-              return
-            }
+          onChange={(e: SelectChangeEvent<TaskStatus>) => {
+            setForm({...formValue, status: e.target.value as TaskStatus}) // TODO as 使いたくないなぁ
           }}
         >
           <MenuItem value={"TODO"}>未完了</MenuItem>
@@ -83,7 +79,7 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ tasks, setTasks }) => {
           setForm({...formValue, content: e.target.value})
         }}
       />
-      <input type="submit" value="Add" disabled={!title} />
+      <input type="submit" value="Add" disabled={!formValue.title} />
     </form>
   )
 }
