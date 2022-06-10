@@ -21,17 +21,17 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
   const INIT_VALUE: TaskReq = {
     title: "",
     status: "TODO",
-    content: "",
-    manHour: 1,
-    deadlineAt: new Date(),
+    content: undefined,
+    manHour: undefined,
+    deadlineAt: undefined,
   }
 
   const [formValue, setForm] = useState<TaskReq>({
-    title:      selectTask?.title      ?? INIT_VALUE.title,
-    status:     selectTask?.status     ?? INIT_VALUE.status,
-    content:    selectTask?.content    ?? INIT_VALUE.content,
-    manHour:    selectTask?.manHour    ?? INIT_VALUE.manHour,
-    deadlineAt: selectTask?.deadlineAt ?? INIT_VALUE.deadlineAt,
+    title:      INIT_VALUE.title,
+    status:     INIT_VALUE.status,
+    content:    INIT_VALUE.content,
+    manHour:    INIT_VALUE.manHour,
+    deadlineAt: INIT_VALUE.deadlineAt,
   })
 
   const handleCreateTask = async () => {
@@ -100,16 +100,9 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
   }
 
   useEffect(() => {
-    if (selectTask) {
-      setForm({
-        title:      selectTask.title,
-        status:     selectTask.status,
-        content:    selectTask.content,
-        manHour:    selectTask.manHour,
-        deadlineAt: selectTask.deadlineAt,
-      })
-    }
-  }, [selectTask]);
+    setForm(selectTask ?? INIT_VALUE)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectTask])
 
   const actionButton = (selectTask: TaskRes | undefined) => {
     if (selectTask) {
