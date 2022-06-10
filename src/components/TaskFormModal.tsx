@@ -172,9 +172,9 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
               label="締め切り"
               mask="____/__/__"
               inputFormat="yyyy/MM/dd"
-              value={formValue.deadlineAt}
+              value={formValue.deadlineAt ?? null}
               onChange={(inputDate) => {
-                setForm({...formValue, deadlineAt: inputDate ?? new Date()})
+                setForm({...formValue, deadlineAt: inputDate ?? undefined})
               }}
               renderInput={(params) => <TextField {...params} />}
             />
