@@ -19,7 +19,7 @@ export const TaskList: React.FC<Props> = ({ title, tasks, setShowModal, setSelec
         <h2 className="text-2xl mb-6">{ title }</h2>
         <ul>
         {
-            tasks.map((task: TaskRes, index: number) => {
+            tasks.sort((a,b) => b.id - a.id).map((task: TaskRes, index: number) => {
               return (
                 <TaskItem
                   key={index}

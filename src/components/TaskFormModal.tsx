@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material"
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-import { TaskStatus, TaskReq, TaskRes, taskStatuses } from "../interfaces/index"
-import { createTask, deleteTask, updateTask } from "../lib/api/tasks"
+import { TaskReq, TaskRes, taskStatuses } from "../interfaces/index"
+import { createTask, deleteTask } from "../lib/api/tasks"
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 
 interface TaskFormProps {
@@ -26,39 +27,11 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     deadlineAt: undefined, // 
   }
 
-  const [formValue, setForm] = useState<TaskReq>({
-    title:      INIT_VALUE.title,
-    status:     INIT_VALUE.status,
-    content:    INIT_VALUE.content,
-    manHour:    INIT_VALUE.manHour,
-    deadlineAt: INIT_VALUE.deadlineAt,
-  })
+  const { control, handleSubmit, setValue } = useForm<TaskReq>({
+    defaultValues: INIT_VALUE
+  });
 
-  const [inputError, setInputError] = useState("")
-
-  const resetForm = () => {
-    setForm(INIT_VALUE)
-    setInputError("")
-  }
-
-  // ジェネリクスをつかってもっと汎用的orReactFromHookを使う
-  const required = (value: string) => {
-    return value === ""
-  }
-
-  const handleCreateTask = async () => {
-    if (required(formValue.title)) {
-      setInputError("タイトルは必須項目です")
-      return
-    }
-    const data: TaskReq = {
-      title:      formValue.title,
-      status:     formValue.status,
-      content:    formValue.content,
-      manHour:    formValue.manHour,
-      deadlineAt: formValue.deadlineAt,
-    }
-
+  const handleCreateTask: SubmitHandler<TaskReq> = async (data) => {
     try {
       const res = await createTask(data)
 
@@ -71,39 +44,22 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     } catch (err) {
       console.log(err)
     }
-
-    resetForm()
   }
 
-  const handleUpdateTask = async (id: number) => {
-    if (required(formValue.title)) {
-      setInputError("タイトルは必須項目です")
-      return
-    }
+  // const handleUpdateTask: SubmitHandler<{id: number, ...TaskReq}> = async (id: number, ...data) => {
+  //   try {
+  //     const res = await updateTask(id, data)
 
-    const data: TaskReq = {
-      title:      formValue.title,
-      status:     formValue.status,
-      content:    formValue.content,
-      manHour:    formValue.manHour,
-      deadlineAt: formValue.deadlineAt,
-    }
-
-    try {
-      const res = await updateTask(id, data)
-
-      if (res.status === 200) {
-        setTasks([...(tasks.filter((task: TaskRes) => task.id !== id)), res.data])
-        handleClose()
-      } else {
-        console.log(res.data)
-      }
-    } catch (err) {
-      console.log(err)
-    }
-
-    resetForm()
-  }
+  //     if (res.status === 200) {
+  //       setTasks([...(tasks.filter((task: TaskRes) => task.id !== id)), res.data])
+  //       handleClose()
+  //     } else {
+  //       console.log(res.data)
+  //     }
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
 
   const handleDeleteTask = async (id: number) => {
     try {
@@ -118,12 +74,14 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     } catch (err) {
       console.log(err)
     }
-
-    resetForm()
   }
 
   useEffect(() => {
-    setForm(selectTask ?? INIT_VALUE)
+    setValue("title", selectTask?.title ?? INIT_VALUE.title)
+    setValue("status", selectTask?.status ?? INIT_VALUE.status)
+    setValue("manHour", selectTask?.manHour ?? INIT_VALUE.manHour)
+    setValue("deadlineAt", selectTask?.deadlineAt ?? INIT_VALUE.deadlineAt)
+    setValue("content", selectTask?.content ?? INIT_VALUE.content)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectTask])
 
@@ -132,93 +90,114 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
       return (
         <>
           <Button variant="outlined" onClick={() => handleDeleteTask(selectTask.id)}>削除</Button>
-          <Button variant="contained" onClick={() => handleUpdateTask(selectTask.id)}>更新</Button>
+          {/* <Button variant="contained" onClick={handleSubmit(handleUpdateTask(selectTask.id))}>更新</Button> */}
         </>
       )
     } else {
-      return <Button variant="contained" onClick={handleCreateTask}>新規作成</Button>
+      return <Button variant="contained" onClick={handleSubmit(handleCreateTask)}>新規作成</Button>
     }
   }
 
   const handleClose = () => {
     setShow(false)
     setSelectTask(undefined)
-    setInputError("")
   }  
 
   return (
     <Dialog open={isShow} onClose={handleClose}>
       <div className="p-12">
         <DialogTitle>
-          <TextField
-            required
-            label="タイトル"
-            variant="standard"
-            fullWidth
-            value={formValue.title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({...formValue, title: e.target.value})
-            }}
-            error={inputError !== ""}
-            helperText={inputError}
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => 
+              <TextField
+                required
+                label="タイトル"
+                variant="standard"
+                fullWidth
+                inputRef={field.ref}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            }
           />
         </DialogTitle>
         <DialogContent className="py-12">
-          <TextField
-            required
-            select
-            label="ステータス"
-            fullWidth
-            variant="standard"
-            value={formValue.status}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({...formValue, status: e.target.value as TaskStatus}) // TODO as 使いたくないなぁ
-            }}
-            SelectProps={{
-              native: true,
-            }}
-          >
-            {Object.entries(taskStatuses).map(([key, value]) => (
-              <option key={key} value={key}>
-                {value}
-              </option>
-            ))}
-          </TextField>
-          <TextField
-            type="number"
-            label="工数(時間)"
-            fullWidth
-            variant="standard"
-            sx={{ my: 2 }}
-            value={formValue.manHour}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({...formValue, manHour: Number(e.target.value) })
-            }}
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => 
+              <TextField
+                required
+                select
+                label="ステータス"
+                fullWidth
+                variant="standard"
+                inputRef={field.ref}
+                value={field.value}
+                onChange={field.onChange}
+                SelectProps={{
+                  native: true,
+                }}
+              >
+                {Object.entries(taskStatuses).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value}
+                  </option>
+                ))}
+              </TextField>
+            }
           />
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DatePicker
-              label="締め切り"
-              mask="____/__/__"
-              inputFormat="yyyy/MM/dd"
-              value={formValue.deadlineAt ?? null}
-              onChange={(inputDate) => {
-                setForm({...formValue, deadlineAt: inputDate ?? undefined})
-              }}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </LocalizationProvider>
-          
-          <TextField
-            label="詳細"
-            multiline
-            fullWidth
-            variant="standard"
-            sx={{ my: 2 }}
-            minRows={10}
-            value={formValue.content}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({...formValue, content: e.target.value})
-            }}
+          <Controller
+            name="manHour"
+            control={control}
+            render={({ field }) => 
+              <TextField
+                type="number"
+                label="工数(時間)"
+                fullWidth
+                variant="standard"
+                sx={{ my: 2 }}
+                inputRef={field.ref}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            }
+          />
+          <Controller
+            name="deadlineAt"
+            control={control}
+            render={({ field }) => 
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="締め切り"
+                  mask="____/__/__"
+                  inputFormat="yyyy/MM/dd"
+                  inputRef={field.ref}
+                  value={field.value}
+                  onChange={field.onChange}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            }
+          />
+          <Controller
+            name="content"
+            control={control}
+            render={({ field }) => 
+              <TextField
+                label="詳細"
+                multiline
+                fullWidth
+                variant="standard"
+                sx={{ my: 2 }}
+                minRows={10}
+                inputRef={field.ref}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            }
           />
         </DialogContent>
         <DialogActions>
