@@ -34,7 +34,23 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     deadlineAt: INIT_VALUE.deadlineAt,
   })
 
+  const [inputError, setInputError] = useState("")
+
+  const resetForm = () => {
+    setForm(INIT_VALUE)
+    setInputError("")
+  }
+
+  // ジェネリクスをつかってもっと汎用的orReactFromHookを使う
+  const required = (value: string) => {
+    return value === ""
+  }
+
   const handleCreateTask = async () => {
+    if (required(formValue.title)) {
+      setInputError("タイトルは必須項目です")
+      return
+    }
     const data: TaskReq = {
       title:      formValue.title,
       status:     formValue.status,
@@ -56,10 +72,15 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
       console.log(err)
     }
 
-    setForm(INIT_VALUE)
+    resetForm()
   }
 
   const handleUpdateTask = async (id: number) => {
+    if (required(formValue.title)) {
+      setInputError("タイトルは必須項目です")
+      return
+    }
+
     const data: TaskReq = {
       title:      formValue.title,
       status:     formValue.status,
@@ -81,7 +102,7 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
       console.log(err)
     }
 
-    setForm(INIT_VALUE)
+    resetForm()
   }
 
   const handleDeleteTask = async (id: number) => {
@@ -97,6 +118,8 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     } catch (err) {
       console.log(err)
     }
+
+    resetForm()
   }
 
   useEffect(() => {
@@ -120,13 +143,14 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
   const handleClose = () => {
     setShow(false)
     setSelectTask(undefined)
-  }
+  }  
 
   return (
     <Dialog open={isShow} onClose={handleClose}>
       <div className="p-12">
         <DialogTitle>
           <TextField
+            required
             label="タイトル"
             variant="standard"
             fullWidth
@@ -134,10 +158,13 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setForm({...formValue, title: e.target.value})
             }}
+            error={inputError !== ""}
+            helperText={inputError}
           />
         </DialogTitle>
         <DialogContent className="py-12">
           <TextField
+            required
             select
             label="ステータス"
             fullWidth
