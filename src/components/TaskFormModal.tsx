@@ -175,7 +175,7 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
                   mask="____/__/__"
                   inputFormat="yyyy/MM/dd"
                   inputRef={field.ref}
-                  value={field.value}
+                  value={field.value ?? null}  // DatePickerに初期値をいれさせないため
                   onChange={field.onChange}
                   renderInput={(params) => <TextField {...params} />}
                 />
