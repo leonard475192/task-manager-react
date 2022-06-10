@@ -143,6 +143,7 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
   const handleClose = () => {
     setShow(false)
     setSelectTask(undefined)
+    setInputError("")
   }  
 
   return (
