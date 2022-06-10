@@ -22,8 +22,8 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
     title: "",
     status: "TODO",
     content: undefined,
-    manHour: undefined,
-    deadlineAt: undefined,
+    manHour: undefined, // ここの初期値をいれるとwarningがでなくなる
+    deadlineAt: undefined, // 
   }
 
   const [formValue, setForm] = useState<TaskReq>({
@@ -170,6 +170,8 @@ export const TaskFormModal: React.FC<TaskFormProps> = ({ isShow, setShow, tasks,
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
               label="締め切り"
+              mask="____/__/__"
+              inputFormat="yyyy/MM/dd"
               value={formValue.deadlineAt}
               onChange={(inputDate) => {
                 setForm({...formValue, deadlineAt: inputDate ?? new Date()})
